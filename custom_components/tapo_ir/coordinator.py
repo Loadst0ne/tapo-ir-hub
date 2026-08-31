@@ -97,7 +97,13 @@ class TapoIrCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         except TapoIrError as err:
             raise UpdateFailed(str(err)) from err
 
-    async def async_control_ac(self, device_id: str, **changes: Any) -> None:
+    async def async_control_ac(
+        self,
+        device_id: str,
+        *,
+        pressed_fid: int | None = None,
+        **changes: Any,
+    ) -> None:
         """Send a complete AC state and update the optimistic cached state."""
         device = (self.data or {}).get(device_id)
         if device is None or "ac_state" not in device:
@@ -116,7 +122,11 @@ class TapoIrCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
             key, converter = mapping[name]
             state[key] = converter(value)
         try:
-            await self.api.async_control_ac(device_id, current_state=state)
+            await self.api.async_control_ac(
+                device_id,
+                current_state=state,
+                pressed_fid=pressed_fid,
+            )
         except TapoIrError as err:
             raise UpdateFailed(str(err)) from err
 

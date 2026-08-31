@@ -346,10 +346,11 @@ class TapoIrApi:
         device_id: str,
         *,
         current_state: dict[str, int],
+        pressed_fid: int | None = None,
     ) -> dict[str, Any]:
         """Send one complete AC state through the remote profile."""
         try:
-            payload = build_ac_payload(current_state)
+            payload = build_ac_payload(current_state, pressed_fid=pressed_fid)
         except AcStateError as err:
             raise TapoIrConnectionError(str(err)) from err
         return await self.async_query_child(
