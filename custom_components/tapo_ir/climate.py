@@ -24,6 +24,8 @@ PARALLEL_UPDATES = 1
 _HVAC_TO_TAPO = {
     HVACMode.COOL: 0,
     HVACMode.HEAT: 1,
+    HVACMode.FAN_ONLY: 3,
+    HVACMode.DRY: 4,
 }
 _TAPO_TO_HVAC = {value: key for key, value in _HVAC_TO_TAPO.items()}
 _FAN_TO_TAPO = {"auto": 0, "low": 1, "high": 3}
@@ -72,7 +74,7 @@ class TapoIrAcClimate(
     _attr_min_temp = 16
     _attr_max_temp = 30
     _attr_target_temperature_step = 1
-    _attr_hvac_modes = [HVACMode.OFF, HVACMode.COOL, HVACMode.HEAT]
+    _attr_hvac_modes = [HVACMode.OFF, HVACMode.COOL, HVACMode.HEAT, HVACMode.FAN_ONLY, HVACMode.DRY]
     _attr_fan_modes = list(_FAN_TO_TAPO)
     _attr_swing_modes = list(_SWING_TO_TAPO)
     _attr_supported_features = (
@@ -121,7 +123,13 @@ class TapoIrAcClimate(
             return HVACAction.OFF
         if self.hvac_mode is HVACMode.HEAT:
             return HVACAction.HEATING
-        return HVACAction.COOLING
+        if self.hvac_mode is HVACMode.COOL:
+            return HVACAction.COOLING
+        if self.hvac_mode is HVACMode.FAN_ONLY:
+            return HVACAction.FAN
+        if self.hvac_mode is HVACMode.DRY:
+            return HVACAction.DRYING
+        return None
 
     @property
     def target_temperature(self) -> float | None:
